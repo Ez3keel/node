@@ -27,6 +27,8 @@ import { url } from 'node:inspector';
 
 // Cabeçalhos (Requisição/Resposta) => Metadados
 
+// HTTP status code
+
 
 const users = [];
 
@@ -49,10 +51,10 @@ const server = http.createServer( (req, res) => {
             email: 'johndoe@example.com',
         })
 
-        return res.end('Criação de usuário')
+        return res.writeHead(201).end('Criação de usuário')
     }
  
-    return res.end('Hello World')
+    return res.writeHead(404).end('Not Found!!!')
 })
 
 // endereço para rodar no localhost
