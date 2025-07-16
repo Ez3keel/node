@@ -1,3 +1,64 @@
+
+
+// Conectando streams com node e pipe
+
+//  Stream Readable
+//  stdin está lendo e stdout está escrevendo
+// process.stdin
+//     .pipe(process.stdout)
+
+import { stdout } from 'node:process';
+import { Readable, Writable, Transform} from 'node:stream'
+
+class OneToHundreadStream extends Readable {
+    index = 1;
+
+    _read() {
+       const i = this.index++ 
+
+       setTimeout(() => {
+            if(i > 100) {
+                this.push(null)
+            } else {
+                const buf = Buffer.from(String(i))
+                this.push(buf)
+            }
+       },1000)
+        
+       
+    }
+}
+
+// chunk é o pedaço que estou enviando dentro do push no caso é o buf
+class MultiplyByTenStream extends Writable {
+    _write(chunk, encoding, callback){
+        console.log(Number(chunk.toString()) * 10)
+        callback()
+    }
+}
+
+class InverseNumber extends Transform {
+    _transform(chunk, encoding, callback) {
+        const transformed = Number(chunk.toString()) * -1
+        // Envio nulo caso de erro
+        callback(null, Buffer.from(String(transformed)))
+    }
+}
+
+/*
+    Buffer é uma forma de transicionar dados entre Streams
+*/
+
+// Stream de Leitura OneToHundreadStream = Readable / Só lê dados
+// Stream de escrita MultiplyByTenStream = Writable / Só escreve dados
+// Stream de Transformação InverseNumber = Transform / Obrigátoriamente precisa ler os dados e escrever em outro lugar
+    new OneToHundreadStream()
+        .pipe(new InverseNumber())
+        .pipe(new MultiplyByTenStream())
+
+
+
+
 // Netflix & Spotify
 
 // Importação de clientes via CSV (Excel)
@@ -18,7 +79,7 @@
 /*
     Streams? O que são?
 
-    São interfaces para trabalhar com fluxos contínuis de dados.
+    São interfaces para trabalhar com fluxos contínuos de dados.
     Imagine um arquivo muito grande ou uma transmissão de vídeo: em vez de carregar tudo de uma vez (o que consome muita memória), você vai processando aos poucos, em partes (chamadas de chunks).
 
     No node.js existem principalmente quatro tipos de streams:
